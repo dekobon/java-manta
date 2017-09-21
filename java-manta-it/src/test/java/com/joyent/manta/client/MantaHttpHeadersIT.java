@@ -14,6 +14,7 @@ import com.joyent.manta.http.MantaHttpHeaders;
 import com.joyent.test.util.MantaAssert;
 import com.joyent.test.util.MantaFunction;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.testng.Assert;
 import org.testng.SkipException;
@@ -21,10 +22,15 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import static com.joyent.manta.exception.MantaErrorCode.INVALID_ROLE_TAG_ERROR;
 import static com.joyent.manta.util.MantaUtils.asString;
@@ -262,5 +268,31 @@ public class MantaHttpHeadersIT {
         MantaHttpHeaders actualHeaders = object.getHttpHeaders();
         Assert.assertEquals(actualHeaders.getDurabilityLevel().intValue(), durability,
                 "Durability not set to value on put");
+    }
+
+    @Test
+    public void canSetContentEncoding() throws IOException {
+        final String contentEncoding = "gzip";
+        final MantaHttpHeaders headers = new MantaHttpHeaders();
+        headers.setContentEncoding(contentEncoding);
+
+        String path = String.format("%s/%s", testPathPrefix, UUID.randomUUID());
+
+        final byte[] gzippedBytes;
+
+        try (InputStream in = IOUtils.toInputStream(TEST_DATA, StandardCharsets.UTF_8);
+             ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+             GZIPOutputStream gzOut = new GZIPOutputStream(bOut)) {
+            IOUtils.copy(in, gzOut);
+            gzOut.flush();
+            gzippedBytes = bOut.toByteArray();
+        }
+
+        mantaClient.put(path, gzippedBytes, headers);
+
+        MantaObject object = mantaClient.get(path);
+        MantaHttpHeaders actualHeaders = object.getHttpHeaders();
+        Assert.assertEquals(actualHeaders.getContentEncoding(), contentEncoding,
+                "Content encoding not set to value on put");
     }
 }
