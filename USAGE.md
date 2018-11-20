@@ -89,7 +89,7 @@ Below is a table of available configuration parameters followed by detailed desc
 | manta.no_auth                      | MANTA_NO_AUTH                  | false                                | Y*                       |
 | manta.disable_native_sigs          | MANTA_NO_NATIVE_SIGS           | false                                | Y*                       |
 | manta.verify_uploads               | MANTA_VERIFY_UPLOADS           | true                                 | Y                        |
-| manta.timeout                      | MANTA_TIMEOUT                  | 20000                                |                          |
+| manta.timeout                      | MANTA_TIMEOUT                  | 2000                                 |                          |
 | manta.retries                      | MANTA_HTTP_RETRIES             | 3 (6 for integration tests)          | Y                        |
 | manta.max_connections              | MANTA_MAX_CONNS                | 24                                   |                          |
 | manta.http_buffer_size             | MANTA_HTTP_BUFFER_SIZE         | 4096                                 |                          |
@@ -138,7 +138,8 @@ Note: Dynamic Updates marked with an asterisk (*) are enabled by the `AuthAwareC
     When set to true, the client calculates a MD5 checksum of the file being uploaded
     to Manta and then checks it against the result returned by Manta.
 * `manta.timeout` ( **MANTA_TIMEOUT**)
-    The number of milliseconds to wait after a request was made to Manta before failing.
+    The number of milliseconds to wait until giving up when trying to make a new connection
+    to Manta.
 * `manta.retries` ( **MANTA_HTTP_RETRIES**)
     The number of times to retry failed HTTP requests. Setting this value to zero disables retries completely.
 * `manta.max_connections` ( **MANTA_MAX_CONNS**)

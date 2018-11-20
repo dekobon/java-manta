@@ -99,9 +99,15 @@ public class DefaultsConfigContext implements ConfigContext {
 
     /**
      * Default number of milliseconds to wait for a TCP socket's connection to
-     * timeout.
+     * timeout (when already connected).
      */
     public static final int DEFAULT_TCP_SOCKET_TIMEOUT = 10 * 1000;
+
+    /**
+     * Default number of milliseconds to wait for a new connection to Manta
+     * until giving up.
+     */
+    public static final int DEFAULT_CONNECTION_TIMEOUT = 2000;
 
     /**
      * Default connection timeout is 1 seconds (1000 ms).
@@ -182,7 +188,7 @@ public class DefaultsConfigContext implements ConfigContext {
 
     @Override
     public Integer getTimeout() {
-        return DEFAULT_HTTP_TIMEOUT;
+        return DEFAULT_CONNECTION_TIMEOUT;
     }
 
     @Override
